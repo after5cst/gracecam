@@ -40,10 +40,12 @@ def switch(nextCamera: Optional[Camera]):
         fmt = "-->{}<--" if camera == nextCamera else "{}"
         what_is_where[camera.name] = fmt.format(camera.preset.name)
 
-    # Now, move the other cameras to cover standby positions.
     positions = [x for x in standby_positions]
+    # This would eliminate duplicates.  But since we want 'LEADER'
+    # always ready, this is currently commented out.
     if nextCamera.preset in positions:
         positions.remove(nextCamera.preset)
+
     logging.debug(f"Checking camera coverage for {positions}")
     for camera in cameras:
         if camera.atem == lastAtemPos:
@@ -103,7 +105,8 @@ def main():
                 process(message)
                 time.sleep(0.5)
             elif atem.program != lastAtemPos:
-                # Detected somebody else changed
+                # Detected somebody else changpush
+                # ed
                 # the program.  Assume cameras moved, too.
                 for camera in cameras:
                     camera.preset = Pos.UNKNOWN

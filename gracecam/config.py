@@ -11,7 +11,7 @@ midi = MIDIReader(port_name='loop')
 cameras = (
     Camera(name='left', ip_address='192.168.2.105', atem=2),
     Camera(name='right', ip_address='192.168.2.107', atem=4),
-    Camera(name='center', ip_address='192.168.2.106', atem=3),
+    # Camera(name='center', ip_address='192.168.2.106', atem=3),
 )
 
 ATEM_IP = "192.168.1.250"
@@ -35,7 +35,10 @@ standby_positions = [
     Pos.PULPIT
 ]
 
+# multiple entries of the same type in 'randoms' increase
+# the odds of it being selected.
 randoms = [
+    Pos.LEADER,
     Pos.LEADER,
     Pos.ORGAN,
     Pos.MIDDLE,
