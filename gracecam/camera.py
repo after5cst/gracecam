@@ -1,5 +1,6 @@
 import enum
 import logging
+import requests
 import threading
 from typing import Optional
 
@@ -43,7 +44,9 @@ class Camera:
 
         msg = f"Moving '{self.name}' from {self.preset.name} to {preset.name}"
         logging.info(msg)
-        # TODO : Start camera move
+        cmd = f"http://{self.ip}/cgi-bin/ptzctrl.cgi?ptzcmd&poscall&{preset.value}"
+        response = requests.get(cmd)
+        logging.debug(response)
         self.preset = Pos.UNKNOWN
         threading.Timer(1.0, move_callback).start()
 

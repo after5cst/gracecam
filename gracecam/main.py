@@ -46,6 +46,8 @@ def switch(nextCamera: Optional[Camera]):
     if nextCamera.preset in positions:
         positions.remove(nextCamera.preset)
 
+    delay_time = 1.0
+
     logging.debug(f"Checking camera coverage for {positions}")
     for camera in cameras:
         if camera.atem == lastAtemPos:
@@ -54,6 +56,11 @@ def switch(nextCamera: Optional[Camera]):
             logging.debug(f"'{camera.name}' already covering '{camera.preset.name}'")
             positions.remove(camera.preset)
         elif positions:
+            # Make sure the transition is complete above so we don't
+            # see the camera start moving during fade.
+            time.sleep(delay_time)
+            delay_time = 0
+
             pos = list(positions)[0]
             camera.move(preset=pos)
             positions.remove(pos)
