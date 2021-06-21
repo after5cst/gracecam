@@ -4,8 +4,8 @@ import texttable
 
 try:
     from . import (
-        Camera, cameras, MidiNote, midi, midi_to_pos,
-        Pos, randoms, standby_positions
+        ATEM, ATEM_IP, Camera, cameras, MidiNote, midi,
+        midi_to_pos, Pos, randoms, standby_positions
     )
 except ImportError:
     from __init__ import (
