@@ -12,6 +12,7 @@ class Pos(enum.Enum):
     MIDDLE = 4
     PIANO = 5
     WIDE = 6
+    UNKNOWN = -1
 
 
 class Camera:
@@ -23,12 +24,11 @@ class Camera:
         preset  The current known preset position
         atem    The ATEM source position
     """
-
     def __init__(self, *, name: str, ip_address: str, atem: int):
         self.ip = ip_address
         self.name = name
         self.atem = atem
-        self.preset = None  # type:  Optional[Pos]
+        self.preset = Pos.UNKNOWN
 
     def move(self, preset: Pos, callback: Optional[callable] = None):
         """ Move to specified preset"""
@@ -41,11 +41,10 @@ class Camera:
             move_callback()
             return
 
-        where = self.preset.name if self.preset else 'UNKNOWN'
-        msg = f"Moving '{self.name}' from {where} to {preset.name}"
+        msg = f"Moving '{self.name}' from {self.preset.name} to {preset.name}"
         logging.info(msg)
         # TODO : Start camera move
-        self.preset = None
+        self.preset = Pos.UNKNOWN
         threading.Timer(1.0, move_callback).start()
 
     def _moved(self, preset: Pos):
