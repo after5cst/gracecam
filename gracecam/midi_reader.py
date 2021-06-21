@@ -1,10 +1,12 @@
 import logging
-from .midi_numbers import number_to_note
+import queue
 from pathlib import Path
 from queue import Queue
 import rtmidi
-from rtmidi.midiutil import open_midiinput, list_input_ports
+from rtmidi.midiutil import open_midiinput
 from typing import List, Optional
+
+from gracecam.midi_note import MidiNote
 
 _SCRIPT_DIR = Path(__file__).parent.resolve()
 _LOG = logging.getLogger()
@@ -63,27 +65,30 @@ class MIDIReader:
         Callback for MIDI messages (called from rtmidi)
         """
         midi_message, delta_time = event
-        if 0x90 <= midi_message[0] < 0xA0:
-            # NOTE ON message.
-            channel_number = midi_message[0] - 0x90
-            pitch = midi_message[1]
-            velocity = midi_message[2]
-
-            # For our purposes, we don't care about velocity.
-            note = number_to_note(pitch)
-            _LOG.debug("Found NOTE ON: {} (channel {})".format(
-                note, channel_number))
-            self.messages.put(note)
-
-        elif 0x80 <= midi_message[0] < 0x90:
-            # NOTE ON message.
-            channel_number = midi_message[0] - 0x80
-            pitch = midi_message[1]
-            # velocity = midi_message[2]
-
-            # For our purposes, we don't care about velocity.
-            note = number_to_note(pitch)
-            _LOG.debug("Skipping NOTE OFF: {} (channel {})".format(
-                note, channel_number))
+        status_byte = midi_message[0]
+        if not (0x80 <= status_byte < 0xA0):
+            # Not a note, too low/high.
+            item = f"MIDI Message {midi_message}"
+        elif 0x90 > status_byte:
+            # Note OFF message
+            item = MidiNote(on=False,
+                            channel=status_byte - 0x80,
+                            pitch=midi_message[1],
+                            velocity=midi_message[2])
+            if item.on:  # Save ON messages only.
+                self.messages.put(item)
         else:
-            _LOG.debug("Found MIDI Message {}".format(midi_message))
+            # Note ON message
+            item = MidiNote(on=True,
+                            channel=status_byte - 0x90,
+                            pitch=midi_message[1],
+                            velocity=midi_message[2])
+            self.messages.put(item)
+        _LOG.debug("Found MIDI Message {}".format(item))
+
+    def get(self) -> Optional[MidiNote]:
+        """ Return a message if it is available. """
+        try:
+            return self.messages.get(block=False)
+        except queue.Empty:
+            return None

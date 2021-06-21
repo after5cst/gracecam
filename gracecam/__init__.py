@@ -4,19 +4,15 @@ gracecam: Main module
 Copyright 2021, Joe Marley
 Licensed under MIT.
 '''
-
-
-def main():
-    '''
-    Main function of the boilerplate code is the entry point of the 'gracecam' executable script (defined in setup.py).
-    
-    Use doctests, those are very helpful.
-    
-    >>> main()
-    Hello
-    >>> 2 + 2
-    4
-    '''
-    
-    print("Hello")
-
+try:
+    # Attempt imports as if we are a package
+    from .atem import ATEM
+    from .camera import Camera, Pos
+    from .config import midi, cameras, midi_to_pos, randoms, standby_positions, ATEM_IP
+    from .midi_note import MidiNote
+except ImportError:
+    # Attempt imports as if we're running inside the directory
+    from atem import ATEM
+    from camera import Camera, Pos
+    from config import midi, cameras, midi_to_pos, randoms, standby_positions, ATEM_IP
+    from midi_note import MidiNote
