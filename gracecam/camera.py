@@ -7,12 +7,12 @@ from typing import Optional
 
 @enum.unique
 class Pos(enum.Enum):
-    PULPIT = 1
+    PULPIT = 0
     LEADER = 2
-    ORGAN = 3
-    MIDDLE = 4
-    PIANO = 5
-    WIDE = 6
+    ORGAN = 5
+    MIDDLE = 7
+    PIANO = 9
+    WIDE = 4
     UNKNOWN = -1
 
 
