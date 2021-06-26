@@ -60,6 +60,7 @@ def switch(nextCamera: Optional[Camera]):
             # see the camera start moving during fade.
             time.sleep(delay_time)
             delay_time = 0
+            atem.preview = 1
 
             pos = list(positions)[0]
             camera.move(preset=pos)
@@ -112,8 +113,7 @@ def main():
                 process(message)
                 time.sleep(0.5)
             elif atem.program != lastAtemPos:
-                # Detected somebody else changpush
-                # ed
+                # Detected somebody else changed
                 # the program.  Assume cameras moved, too.
                 for camera in cameras:
                     camera.preset = Pos.UNKNOWN
