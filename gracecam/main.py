@@ -27,6 +27,14 @@ atem = ATEM(ip_address=ATEM_IP)
 lastAtemPos = -1
 
 
+def get_current_camera():
+    id = atem.program
+    for camera in cameras:
+        if camera.atem == id:
+            return camera
+    return None
+
+
 def switch(nextCamera: Optional[Camera]):
     global lastAtemPos
     if nextCamera:
@@ -83,7 +91,13 @@ def process(message: MidiNote) -> None:
     try:
         pos = midi_to_pos[message.note]
     except KeyError:
+        current = get_current_camera()
         pos = random.choice(randoms)
+        while current and pos.name == current.preset.name:
+            logging.debug(f"Random '{pos.name}' == '{current.preset.name}', picking again...")
+            pos = random.choice(randoms)
+        if current and pos:
+            logging.debug(f"Random '{pos.name}' picked to replace '{current.preset.name}'")
 
     logging.debug('-' * 60)
     logging.info(f"Mapped '{message}' to position '{pos.name}'")
