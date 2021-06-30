@@ -86,9 +86,9 @@ class MIDIReader:
             self.messages.put(item)
         _LOG.debug("Found MIDI Message {}".format(item))
 
-    def get(self) -> Optional[MidiNote]:
+    def get(self, timeout=30) -> Optional[MidiNote]:
         """ Return a message if it is available. """
         try:
-            return self.messages.get(timeout=30)
+            return self.messages.get(timeout=timeout)
         except queue.Empty:
             return None

@@ -25,10 +25,10 @@ class Camera:
         preset  The current known preset position
         atem    The ATEM source position
     """
-    def __init__(self, *, name: str, ip_address: str, atem: int):
+    def __init__(self, *, name: str, ip_address: str):
         self.ip = ip_address
         self.name = name
-        self.atem = atem
+        self.atem = -1
         self.preset = Pos.UNKNOWN
 
     def move(self, preset: Pos, callback: Optional[callable] = None):
@@ -45,8 +45,11 @@ class Camera:
         msg = f"Moving '{self.name}' from {self.preset.name} to {preset.name}"
         logging.info(msg)
         cmd = f"http://{self.ip}/cgi-bin/ptzctrl.cgi?ptzcmd&poscall&{preset.value}"
+
+        # TESTING: Comment out these next two lines to test without cameras
         response = requests.get(cmd)
         logging.debug(response)
+
         self.preset = Pos.UNKNOWN
         threading.Timer(1.0, move_callback).start()
 
