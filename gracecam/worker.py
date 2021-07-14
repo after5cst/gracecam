@@ -4,13 +4,13 @@ import texttable
 
 try:
     from . import (
-        ATEM, ATEM_IP, Camera, cameras, MidiNote, midi,
-        midi_to_pos, Pos, program_staging, randoms, standby_positions
+        ATEM, ATEM_IP, Camera, cameras, MidiNote, midi, midi_to_pos,
+        pending_positions, Pos, program_staging, randoms, standby_positions
     )
 except ImportError:
     from __init__ import (
-        ATEM, ATEM_IP, Camera, cameras, MidiNote, midi,
-        midi_to_pos, Pos, program_staging, randoms, standby_positions
+        ATEM, ATEM_IP, Camera, cameras, MidiNote, midi, midi_to_pos,
+        pending_positions, Pos, program_staging, randoms, standby_positions
     )
 
 from pathlib import Path
@@ -24,6 +24,9 @@ atem = ATEM(ip_address=ATEM_IP)
 # what camera is showing on the ATEM.  When that happens, we need
 # to not trust that the camera positions we have set are correct.
 lastAtemPos = -1
+logging.debug('DEBUG')
+logging.info('INFO')
+logging.warning('WARNING')
 
 
 class Stations:
@@ -159,13 +162,18 @@ def move_preview_to_random(curr, callback=None):
     return pos
 
 
-def process(message: MidiNote) -> None:
+def process(pos: Pos) -> None:
     global lastAtemPos
     curr = Stations().set_from_atem()
-    try:
-        pos = midi_to_pos[message.note]
-    except KeyError:
+
+    if pos == Pos.UNKNOWN:
+        # A 'bad' value is translated into we want to select a random camera.
+        # In the current (7/2021) implementation, a "B" midi Note is not translated
+        # and is used by the caller to indicate we want a random camera.
         if curr.preview.preset.name != 'UNKNOWN':
+            # Random cameras are normally already loaded into the preview.  If
+            # the preview spot is known (e.g. the user didn't change things outside
+            # of the app), then we can just use what's in preview as the next camera.
             pos = curr.preview.preset
         else:
             if curr.preview.atem == curr.program.atem:
@@ -175,7 +183,6 @@ def process(message: MidiNote) -> None:
             return
 
     logging.debug('-' * 60)
-    logging.info(f"Mapped '{message}' to position '{pos.name}'")
 
     lastAtemPos = curr.program.atem
     for camera in cameras:
@@ -187,6 +194,7 @@ def process(message: MidiNote) -> None:
 
 
 def worker():
+    global lastAtemPos
     with midi:
         # Flush anything out there already.
         if midi.get(0.1):
@@ -196,16 +204,21 @@ def worker():
             logging.info("Flush complete")
 
         while True:
-            message = midi.get()
+            message = midi.get(0.5)
             if message:
-                process(message)
-                time.sleep(0.5)
+                logging.info(f"Processing MIDI message '{message}'")
+                process(midi_to_pos[message])
+            elif not pending_positions.empty():
+                pos = pending_positions.get()
+                logging.info(f"Processing pending position '{pos}'")
+                process(pos)
             elif atem.program != lastAtemPos:
                 # Detected somebody else changed
                 # the program.  Assume cameras moved, too.
                 logging.info("Detected ATEM program change")
                 for camera in cameras:
                     camera.preset = Pos.UNKNOWN
+                lastAtemPos = atem.program
             else:
-                logging.debug("No MIDI message available.")
-                time.sleep(1)
+                logging.debug("Nothing to do.")
+                time.sleep(5)

@@ -8,11 +8,15 @@ from typing import Optional
 @enum.unique
 class Pos(enum.Enum):
     PULPIT = 0
+    PRESET_1 = 1
     LEADER = 2
-    ORGAN = 5
-    MIDDLE = 7
-    PIANO = 9
+    PRESET_3 = 3
     WIDE = 4
+    ORGAN = 5
+    PRESET_6 = 6
+    MIDDLE = 7
+    PRESET_8 = 8
+    PIANO = 9
     UNKNOWN = -1
 
 

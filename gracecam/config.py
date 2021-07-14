@@ -1,10 +1,11 @@
-
 try:
     from .camera import Pos, Camera
     from .midi_reader import MIDIReader
 except ImportError:
     from camera import Pos, Camera
     from midi_reader import MIDIReader
+
+from collections import defaultdict
 
 # TESTING: Choose 'loop' for Windows testing, 'IAC' for OSX production
 midi = MIDIReader(port_name='IAC')
@@ -23,19 +24,19 @@ for index, camera in enumerate(cameras):
 ATEM_IP = "192.168.2.105"
 # ATEM_IP = "192.168.1.250"
 
-midi_to_pos = {
-    "C": Pos.PULPIT,
-    "C#": Pos.PULPIT,
-    "D": Pos.LEADER,
-    "D#": Pos.LEADER,
-    "E": Pos.WIDE,
-    "F": Pos.ORGAN,
-    "F#": Pos.ORGAN,
-    "G": Pos.MIDDLE,
-    "G#": Pos.MIDDLE,
-    "A": Pos.PIANO,
-    "A#": Pos.PIANO
-}
+midi_to_pos = defaultdict(lambda: Pos.UNKNOWN)
+midi_to_pos["C"] = Pos.PULPIT
+midi_to_pos["C#"] = Pos.PULPIT
+midi_to_pos["D"] = Pos.LEADER
+midi_to_pos["D#"] = Pos.LEADER
+midi_to_pos["E"] = Pos.WIDE
+midi_to_pos["F"] = Pos.ORGAN
+midi_to_pos["F#"] = Pos.ORGAN
+midi_to_pos["G"] = Pos.MIDDLE
+midi_to_pos["G#"] = Pos.MIDDLE
+midi_to_pos["A"] = Pos.PIANO
+midi_to_pos["A#"] = Pos.PIANO
+
 
 standby_positions = [
     Pos.LEADER,
