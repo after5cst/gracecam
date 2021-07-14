@@ -1,4 +1,5 @@
 import logging
+import threading
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -11,4 +12,6 @@ except ImportError:
     from worker import worker
 
 if __name__ == '__main__':
-    worker()
+    threading.Thread(target=worker, daemon=True)
+    while True:
+        pass
