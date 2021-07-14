@@ -54,5 +54,6 @@ randoms = [
     Pos.LEADER,
     Pos.ORGAN,
     Pos.MIDDLE,
-    Pos.PIANO
+    Pos.PIANO,
+    Pos.WIDE
 ]
