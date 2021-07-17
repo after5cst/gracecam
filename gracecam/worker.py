@@ -219,6 +219,3 @@ def worker():
                 for camera in cameras:
                     camera.preset = Pos.UNKNOWN
                 lastAtemPos = atem.program
-            else:
-                logging.debug("Nothing to do.")
-                time.sleep(5)
