@@ -72,16 +72,16 @@ class Stations:
         """Read the ATEM and set preview/standby from program"""
         program_id = atem.program
         self.program = cameras[program_id-1]
-        # logging.debug(f"Program is currently {self.program.name}")
+        logging.debug(f"Program is currently {self.program.name}")
         staging = program_staging[self.program.name]
         for camera in cameras:
             if camera.name == staging['preview']:
                 self.preview = camera
                 atem.preview = camera.atem
-                # logging.debug(f"Preview is staged as {camera.name}")
+                logging.debug(f"Preview is staged as {camera.name}")
             elif camera.name == staging['standby']:
                 self.standby = camera
-                # logging.debug(f"Standby is staged as {camera.name}")
+                logging.debug(f"Standby is staged as {camera.name}")
         return self
 
 
@@ -94,8 +94,11 @@ def switch(nextCamera: Optional[Camera]):
     prev.preview_preset = prev.preview.preset
     prev.standby_preset = prev.standby.preset
 
-    if 'UNKNOWN' in (prev.program_preset.name, prev.preview_preset.name):
-        logging.info(f"Unknown camera state.  Setting up cameras")
+    if 'UNKNOWN' == prev.program_preset.name:
+        logging.info(f"Unknown PROGRAM PRESET camera state.  Setting up cameras")
+        atem.preview = nextCamera.atem
+    elif 'UNKNOWN' == prev.preview_preset.name:
+        logging.info(f"Unknown PREVIEW PRESET state.  Setting up cameras")
         atem.preview = nextCamera.atem
     elif prev.program == nextCamera:
         logging.info(f"Program camera '{nextCamera.name}' already showing")
@@ -111,9 +114,8 @@ def switch(nextCamera: Optional[Camera]):
 
     atem.exec()
     time.sleep(1.5)  # Wait for the transition to happen.
+    lastAtemPos = atem.program
     curr = Stations().set_from_staging()
-
-    lastAtemPos = curr.program.atem
 
     # Always set preview to be a random camera.
     next_preview_pos = move_preview_to_random(curr)

@@ -8,14 +8,14 @@ from typing import Optional
 @enum.unique
 class Pos(enum.Enum):
     PULPIT = 0
-    PRESET_1 = 1
+    VBS_LEADER = 1
     LEADER = 2
     PRESET_3 = 3
     WIDE = 4
     ORGAN = 5
-    PRESET_6 = 6
+    VBS_LEFT = 6
     MIDDLE = 7
-    PRESET_8 = 8
+    VBS_RIGHT = 8
     PIANO = 9
     UNKNOWN = -1
 
@@ -55,7 +55,7 @@ class Camera:
         logging.debug(response)
 
         self.preset = Pos.UNKNOWN
-        threading.Timer(1.0, move_callback).start()
+        threading.Timer(1.5, move_callback).start()
 
     def _moved(self, preset: Pos):
         logging.info(f"Camera '{self.name}' at preset {preset.name}")
