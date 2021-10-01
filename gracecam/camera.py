@@ -47,8 +47,11 @@ class Camera:
         cmd = f"http://{self.ip}/cgi-bin/ptzctrl.cgi?ptzcmd&poscall&{preset.value}"
 
         # TESTING: Comment out these next two lines to test without cameras
-        response = requests.get(cmd)
-        logging.debug(response)
+        try:
+            response = requests.get(cmd)
+            logging.debug(response)
+        except Exception:
+            logging.error("Exception thrown making camera request")
 
         self.preset = Pos.UNKNOWN
         threading.Timer(1.0, move_callback).start()

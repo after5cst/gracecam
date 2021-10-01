@@ -112,7 +112,7 @@ def switch(nextCamera: Optional[Camera]):
         atem.preview = nextCamera.atem
 
     atem.exec()
-    time.sleep(1.5)  # Wait for the transition to happen.
+    time.sleep(2.5)  # Wait for the transition to happen.
     curr = Stations().set_from_staging()
 
     lastAtemPos = curr.program.atem
