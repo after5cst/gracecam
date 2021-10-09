@@ -168,6 +168,7 @@ def process(message: MidiNote) -> None:
     global lastAtemPos
     curr = Stations().set_from_atem()
     try:
+        velocity = message.velocity
         pos = midi_to_pos[message.note]
     except KeyError:
         if curr.preview.preset.name != 'UNKNOWN':
@@ -183,6 +184,14 @@ def process(message: MidiNote) -> None:
     logging.info(f"Mapped '{message}' to position '{pos.name}'")
 
     lastAtemPos = curr.program.atem
+
+    if velocity:
+        # A velocity gives us the camera number that is required.
+        for camera in cameras:
+            if camera.num == velocity:
+                camera.move(preset=pos, callback=switch)
+                return
+
     for camera in cameras:
         if camera.preset == pos:
             camera.move(preset=pos, callback=switch)

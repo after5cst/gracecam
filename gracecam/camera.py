@@ -9,6 +9,7 @@ from typing import Optional
 class Pos(enum.Enum):
     PULPIT = 0
     LEADER = 2
+    PRESET3 = 3
     ORGAN = 5
     MIDDLE = 7
     PIANO = 9
@@ -25,10 +26,11 @@ class Camera:
         preset  The current known preset position
         atem    The ATEM source position
     """
-    def __init__(self, *, name: str, ip_address: str):
+    def __init__(self, *, name: str, ip_address: str, num: int):
         self.ip = ip_address
         self.name = name
         self.atem = -1
+        self.num = num
         self.preset = Pos.UNKNOWN
 
     def move(self, preset: Pos, callback: Optional[callable] = None):

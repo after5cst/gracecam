@@ -11,10 +11,10 @@ midi = MIDIReader(port_name='IAC')
 # midi = MIDIReader(port_name='loop')
 
 cameras = (
-    Camera(name='booth', ip_address='192.168.2.109'),
-    Camera(name='left', ip_address='192.168.2.107'),
-    Camera(name='center', ip_address='192.168.2.106'),
-    Camera(name='right', ip_address='192.168.2.108'),
+    Camera(name='booth', ip_address='192.168.2.109', num=1),
+    Camera(name='left', ip_address='192.168.2.107', num=2),
+    Camera(name='center', ip_address='192.168.2.106', num=3),
+    Camera(name='right', ip_address='192.168.2.108', num=4),
 )
 for index, camera in enumerate(cameras):
     camera.atem = index + 1
@@ -27,7 +27,7 @@ midi_to_pos = {
     "C": Pos.PULPIT,
     "C#": Pos.PULPIT,
     "D": Pos.LEADER,
-    "D#": Pos.LEADER,
+    "D#": Pos.PRESET3,
     "E": Pos.WIDE,
     "F": Pos.ORGAN,
     "F#": Pos.ORGAN,
