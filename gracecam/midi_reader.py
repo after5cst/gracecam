@@ -28,6 +28,7 @@ class MIDIReader:
         self.messages = Queue()
         self.midi_in = None  # type: Optional[rtmidi.MidiIn]
         self.port_name = port_name
+        self.last_message = None
 
     @staticmethod
     def valid_ports() -> List[str]:
@@ -75,14 +76,35 @@ class MIDIReader:
                             channel=status_byte - 0x80,
                             pitch=midi_message[1],
                             velocity=midi_message[2])
-            if item.on:  # Save ON messages only.
+
+            # We don't process an OFF message if the previous message
+            # was a matching ON message, so we don't double-post.
+            matches_last = True
+            if self.last_message is None:
+                matches_last = False
+            elif self.last_message.off:
+                matches_last = False
+            elif self.last_message.channel != item.channel:
+                matches_last = False
+            elif self.last_message.pitch != item.channel:
+                matches_last = False
+            else:
+                matches_last = True
+
+            if not matches_last:
+                self.last_message = item
                 self.messages.put(item)
+            else:
+                # We matched: the next one by definition does not match.
+                self.last_message = None
+                
         else:
             # Note ON message
             item = MidiNote(on=True,
                             channel=status_byte - 0x90,
                             pitch=midi_message[1],
                             velocity=midi_message[2])
+            self.last_message = item
             self.messages.put(item)
         _LOG.debug("Found MIDI Message {}".format(item))
 

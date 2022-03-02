@@ -201,6 +201,7 @@ def process(message: MidiNote) -> None:
 
 
 def main():
+    logging.info("Started main()")
     with midi:
         # Flush anything out there already.
         if midi.get(0.1):
@@ -212,6 +213,7 @@ def main():
         while True:
             message = midi.get()
             if message:
+                logging.debug("Processing MIDI message")
                 process(message)
                 time.sleep(0.5)
             elif atem.program != lastAtemPos:
